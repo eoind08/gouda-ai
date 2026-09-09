@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+
+
 interface Message {
   id: string
   content: string
@@ -10,11 +12,29 @@ interface Message {
   rating?: number
 }
 
+const MODELS = [
+  {
+    id: 'gruyere-1.0-r1',
+    name: 'Gruyere-1.0',
+    apiName: 'Gruyere-1.0-r1',
+  },
+  {
+    id: 'gouda0.0.1',
+    name: 'Gouda0.0.1',
+    apiName: 'gouda0.0.1',
+  },
+  {
+    id: 'gouda-g1-xs-r4',
+    name: 'G1-XS',
+    apiName: 'gouda-g1-xs-r4',
+  },
+]
+
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I\'m Gouda. Ask Me Anything!',
+      content: 'Hello! I\'m Gouda. Ask Me Anything! \n The best way to talk to me is to get me to finish a sentence, \n rather than question me directly!',
       isUser: false,
       timestamp: new Date(),
       rating: 0
@@ -23,7 +43,7 @@ export default function ChatInterface() {
 
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedModel, setSelectedModel] = useState('Gruyere-1.0-r1')
+  const [selectedModel, setSelectedModel] = useState(MODELS[0].id)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,7 +86,7 @@ export default function ChatInterface() {
         },
         body: JSON.stringify({
           message: messageText,
-          model_name: selectedModel,
+          model_name: MODELS.find(model => model.id === selectedModel)?.apiName,
           max_tokens: 100,
         }),
       })
@@ -280,10 +300,13 @@ export default function ChatInterface() {
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
               className="px-3 py-2 bg-[#8b5a2b] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              disabled={isLoading}
             >
-              <option value="Gruyere-1.0-r1">
-                Gruyere-1.0
-              </option>
+              {MODELS.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
             </select>
 
             <button
