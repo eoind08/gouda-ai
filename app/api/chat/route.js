@@ -1,53 +1,87 @@
 export async function POST(request) {
+  console.log('=== CHAT ROUTE HIT ===')
+
   try {
-    const body = await request.json();
+    const body = await request.json()
+
+    console.log('Request body:', body)
+
     const {
       message,
-      model_name = 'gouda0.0.1',
-      max_tokens = 200,
-      context = [],
-    } = body;
+      model_name = 'Gruyere-1.0-r1',
+      max_tokens = 256,
+    } = body
 
-    const backendResponse = await fetch('http://138.199.215.250:8000/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message, model_name, max_tokens, context }),
-    });
+    console.log('Sending to Gouda API:', {
+      model_name,
+      message,
+      max_tokens,
+    })
+
+    const backendResponse = await fetch(
+      'http://138.199.215.250:8000/chat/stream',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model_name,
+          message,
+          max_tokens,
+        }),
+      }
+    )
+
+    console.log('Backend status:', backendResponse.status)
 
     if (!backendResponse.ok) {
-      const errorText = await backendResponse.text();
-      console.error('Backend error:', errorText);
+      const errorText = await backendResponse.text()
+      console.error('Backend error:', errorText)
+
       return new Response(
-        JSON.stringify({ message: 'Backend service error', error: errorText }),
-        { status: backendResponse.status, headers: { 'Content-Type': 'application/json' } }
-      );
+        JSON.stringify({
+          message: 'Backend service error',
+          error: errorText,
+        }),
+        {
+          status: backendResponse.status,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     }
 
-    const data = await backendResponse.json();
-    let responseText = data.response;
+    console.log('Backend stream received')
 
-    const bannedKeywords = ['suicide', 'violence', 'bomb', 'kill', 'attack', 'drugs'];
-
-    const containsUnsafeContent = bannedKeywords.some((keyword) =>
-      responseText.toLowerCase().includes(keyword)
-    );
-
-    if (containsUnsafeContent) {
-      responseText = "Sorry, I don't know what happened there. Try something else.";
-    }
-
-    return new Response(
-      JSON.stringify({ message: data.response }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(backendResponse.body, {
+      status: backendResponse.status,
+      headers: {
+        'Content-Type':
+          backendResponse.headers.get('Content-Type') ||
+          'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+      },
+    })
 
   } catch (error) {
-    console.error('Error processing chat request:', error);
+    console.error('=== CHAT ROUTE ERROR ===')
+    console.error(error)
+
     return new Response(
-      JSON.stringify({ message: 'Internal server error', error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+      JSON.stringify({
+        message: 'Internal server error',
+        error: error instanceof Error
+          ? error.message
+          : String(error),
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
   }
 }
