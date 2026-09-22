@@ -45,6 +45,8 @@ export default async function Post({ params }: PostPageParams) {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] text-[#2f2418]">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2629682720782125"
+     crossOrigin="anonymous"></script>
 
       {/* =========================================================
           HEADER

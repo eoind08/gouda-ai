@@ -1,6 +1,8 @@
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#f5f0e8] py-8">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2629682720782125"
+     crossOrigin="anonymous"></script>
       <meta name="google-adsense-account" content="ca-pub-2629682720782125"></meta>
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-[#d7c3aa] rounded-xl p-8 shadow-lg">

@@ -14,6 +14,8 @@ export default function UpdatesPage() {
 
   return (
     <div className="min-h-screen bg-[#f5f0e8] text-[#f5f0e8]">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2629682720782125"
+     crossOrigin="anonymous"></script>
       {/* Header Section - Styled similarly to the blog page for consistency */}
       <header className="bg-[#d7c3aa] text-[#64401e] py-16">
         <div className="container mx-auto px-4 text-center">
