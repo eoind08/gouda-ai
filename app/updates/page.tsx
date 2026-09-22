@@ -15,7 +15,7 @@ export default function UpdatesPage() {
   return (
     <div className="min-h-screen bg-[#f5f0e8] text-[#f5f0e8]">
       {/* Header Section - Styled similarly to the blog page for consistency */}
-      <header className="bg-[#d7c3aa] text-white py-16">
+      <header className="bg-[#d7c3aa] text-[#64401e] py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-extrabold mb-4 animate-fade-in-up">
             Gouda AI Updates

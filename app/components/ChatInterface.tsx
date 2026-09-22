@@ -14,20 +14,10 @@ interface Message {
 
 const MODELS = [
   {
-    id: 'gruyere-1.0-r1',
-    name: 'Gruyere-1.0',
-    apiName: 'Gruyere-1.0-r1',
-  },
-  {
-    id: 'gouda0.0.1',
-    name: 'Gouda0.0.1',
-    apiName: 'gouda0.0.1',
-  },
-  {
-    id: 'gouda-g1-xs-r4',
-    name: 'G1-XS',
-    apiName: 'gouda-g1-xs-r4',
-  },
+    id: 'Gruyere-1.1',
+    name: 'Gruyere-1.1',
+    apiName: 'Gruyere-1.1',
+  }
 ]
 
 export default function ChatInterface() {
@@ -219,7 +209,7 @@ export default function ChatInterface() {
       </p>
 
       <p className='text-center mb-8 text-2xl text-[#64401e]'>
-        The Bad (sometimes funny) AI
+        (Incredibly) Lightweight LLMs
       </p>
 
       {/* Chat Container */}
