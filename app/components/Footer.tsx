@@ -8,7 +8,7 @@ export default function Footer() {
           Latest Model: Gruyere-1.1
         </p>
         <p className="text-[#64401e] text-sm">
-          gouda AI 0.1.2
+          gouda AI 0.2.0
         </p>
         <Link 
             href="/privacypolicy" 

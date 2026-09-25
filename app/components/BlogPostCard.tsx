@@ -23,7 +23,19 @@ export default function BlogPostCard({ slug, title, date, image, tags, descripti
 
   return (
     <Link href={`/${slug}`} className="block">
-      <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden h-full flex flex-col">
+      <div className="
+    group
+    overflow-hidden
+    rounded-lg
+    border
+    border-[#64401e]/10
+    bg-white
+    shadow-md
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:border-[#879574]/40
+    hover:shadow-[0_12px_35px_rgba(70,45,20,0.10)]">
         {/* Blog Post Image */}
         <div className="relative w-full h-48">
           <Image
@@ -43,7 +55,11 @@ export default function BlogPostCard({ slug, title, date, image, tags, descripti
 
         {/* Card Content */}
         <div className="p-6 flex flex-col flex-grow">
-          <h3 className="text-xl font-bold text-[#64401e] mb-2 leading-tight">
+          <h3 className="
+    font-bold
+    text-[#64401e]
+    transition-colors
+    group-hover:text-[#667454]">
             {title}
           </h3>
           <p className="text-gray-600 text-sm mb-3">
