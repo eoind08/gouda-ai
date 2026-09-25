@@ -75,7 +75,7 @@ export default async function Post({ params }: PostPageParams) {
 
             {/* Tags */}
             {postData.tags && postData.tags.length > 0 && (
-              <div className="mb-5 flex flex-wrap gap-2">
+              <div className="mb-5 flex flex-wrap gap-2 text-[#f5f0e8]">
                 {postData.tags.map((tag) => (
                   <Tag key={tag} text={tag} />
                 ))}
