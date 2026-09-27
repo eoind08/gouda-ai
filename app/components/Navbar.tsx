@@ -1,63 +1,64 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
 export default function Navbar() {
+  const [dark, setDark] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    const saved = localStorage.getItem('gouda-theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const shouldUseDark = saved ? saved === 'dark' : prefersDark
+
+    setDark(shouldUseDark)
+    document.documentElement.classList.toggle('dark', shouldUseDark)
+    setMounted(true)
+  }, [])
+
+  const toggleTheme = () => {
+    const next = !dark
+    setDark(next)
+    document.documentElement.classList.toggle('dark', next)
+    localStorage.setItem('gouda-theme', next ? 'dark' : 'light')
+  }
+
   return (
-    <nav className="w-full bg-[#f5f0e8] px-4 py-4 shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo and Title */}
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-          <div className="text-3xl"><Image src={"/gouda.png"} width={64} height={64} alt='logo'/></div>
-          <span className="text-2xl font-bold text-[#64401e]">Gouda AI</span>
+    <nav className="navbar">
+      <div className="navbar-inner">
+        <Link href="/" className="brand">
+          <Image
+            src="/gouda.png"
+            width={48}
+            height={48}
+            alt="Gouda AI"
+            className="brand-logo"
+            priority
+          />
+          <span>Gouda AI</span>
         </Link>
 
-        {/* Navigation Links */}
-        <div className="flex items-center space-x-6">
-          <Link 
-            href="/about" 
-            className="px-4 py-2 text-[#64401e] hover:bg-[#d7c3aa] rounded-lg transition-colors font-medium"
+        <div className="nav-links">
+          <Link href="/about">About</Link>
+          <Link href="/updates">Updates</Link>
+
+          <button
+            onClick={toggleTheme}
+            className="theme-button"
+            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            About
-          </Link>
-          <Link 
-            href="/updates" 
-            className="px-4 py-2 text-[#64401e] hover:bg-[#d7c3aa] rounded-lg transition-colors font-medium"
-          >
-            Updates
-          </Link>
-          <Link 
-            href="/account" 
-            className="p-2 text-[#64401e] hover:bg-[#d7c3aa] rounded-lg transition-colors"
-          >
-            <svg 
-              className="w-6 h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
-              />
-            </svg>
-          </Link>
-          {/* Theme toggle placeholder */}
-          <button className="p-2 text-[#64401e] hover:bg-[#d7c3aa] rounded-lg transition-colors">
-            <svg 
-              className="w-6 h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" 
-              />
-            </svg>
+            {mounted && dark ? (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M20.35 15.35A9 9 0 018.65 3.65 9 9 0 1012 21a9 9 0 008.35-5.65z" />
+              </svg>
+            )}
           </button>
         </div>
       </div>

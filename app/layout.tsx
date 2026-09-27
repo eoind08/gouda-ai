@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <SpeedInsights />
       <Analytics />
-      <body className={`${inter.className} min-h-screen bg-[#f5f0e8] flex flex-col`}>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
         <Navbar />
         <main className="flex-1">
           {children}

@@ -1,38 +1,38 @@
 // app/blog/[slug]/page.tsx
 
-import { getAllPostSlugs, getPostData } from '../../../lib/posts';
-import MarkdownRenderer from '../../components/MarkdownRenderer';
-import Tag from '../../components/Tag';
-import ImageWithFallback from '../../components/ImageWithFallback';
-import Link from 'next/link';
+import { getAllPostSlugs, getPostData } from '../../../lib/posts'
+import MarkdownRenderer from '../../components/MarkdownRenderer'
+import Tag from '../../components/Tag'
+import ImageWithFallback from '../../components/ImageWithFallback'
+import Link from 'next/link'
 
 interface PostPageParams {
   params: {
-    slug: string;
-  };
+    slug: string
+  }
 }
 
 // Generate all blog routes at build time
 export async function generateStaticParams() {
-  return getAllPostSlugs();
+  return getAllPostSlugs()
 }
 
 // Generate metadata for each post
 export async function generateMetadata({ params }: PostPageParams) {
-  const postData = await getPostData(params.slug);
+  const postData = await getPostData(params.slug)
 
   return {
     title: postData.title,
     description:
       postData.description ||
       `Read "${postData.title}" on the Gouda AI blog.`,
-  };
+  }
 }
 
 export default async function Post({ params }: PostPageParams) {
-  const postData = await getPostData(params.slug);
+  const postData = await getPostData(params.slug)
 
-  const fallbackImage = '/gouda.png';
+  const fallbackImage = '/gouda.png'
 
   const formattedDate = new Date(postData.date).toLocaleDateString(
     'en-US',
@@ -41,17 +41,20 @@ export default async function Post({ params }: PostPageParams) {
       month: 'long',
       day: 'numeric',
     }
-  );
+  )
 
   return (
-    <div className="min-h-screen bg-[#f5f0e8] text-[#2f2418]">
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2629682720782125"
-     crossOrigin="anonymous"></script>
+    <div className="min-h-screen bg-paper text-chocolate transition-colors duration-300">
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2629682720782125"
+        crossOrigin="anonymous"
+      />
 
       {/* =========================================================
           HEADER
       ========================================================= */}
-      <header className="border-b border-[#64401e]/10 bg-[#d7c3aa]">
+      <header className="border-b border-[var(--border)] bg-beige transition-colors duration-300">
         <div className="mx-auto max-w-6xl px-6 py-10 md:py-14">
 
           {/* Back link */}
@@ -63,7 +66,7 @@ export default async function Post({ params }: PostPageParams) {
               items-center
               text-sm
               font-medium
-              text-[#64401e]
+              text-chocolate
               transition-opacity
               hover:opacity-60
             "
@@ -75,7 +78,7 @@ export default async function Post({ params }: PostPageParams) {
 
             {/* Tags */}
             {postData.tags && postData.tags.length > 0 && (
-              <div className="mb-5 flex flex-wrap gap-2 text-[#f5f0e8]">
+              <div className="mb-5 flex flex-wrap gap-2">
                 {postData.tags.map((tag) => (
                   <Tag key={tag} text={tag} />
                 ))}
@@ -89,7 +92,7 @@ export default async function Post({ params }: PostPageParams) {
                 font-extrabold
                 leading-[1.05]
                 tracking-tight
-                text-[#3d2918]
+                text-chocolate
                 md:text-6xl
               "
             >
@@ -106,7 +109,7 @@ export default async function Post({ params }: PostPageParams) {
                 gap-x-3
                 gap-y-1
                 text-sm
-                text-[#64401e]/75
+                text-chocolate-soft
               "
             >
               <span>By {postData.author}</span>
@@ -120,12 +123,10 @@ export default async function Post({ params }: PostPageParams) {
         </div>
       </header>
 
-
       {/* =========================================================
           MAIN CONTENT
       ========================================================= */}
       <main className="mx-auto max-w-5xl px-6 py-12 md:py-16">
-
 
         {/* =======================================================
             FEATURED ILLUSTRATION
@@ -133,7 +134,6 @@ export default async function Post({ params }: PostPageParams) {
         {postData.image && (
           <figure className="mx-auto mb-16 max-w-3xl md:mb-20">
 
-            {/* Image */}
             <div className="relative mx-auto aspect-[16/8] w-full">
               <ImageWithFallback
                 src={postData.image || fallbackImage}
@@ -144,7 +144,6 @@ export default async function Post({ params }: PostPageParams) {
               />
             </div>
 
-            {/* Caption */}
             <figcaption
               className="
                 mt-4
@@ -153,7 +152,8 @@ export default async function Post({ params }: PostPageParams) {
                 font-medium
                 uppercase
                 tracking-[0.18em]
-                text-[#64401e]/45
+                text-chocolate-soft
+                opacity-50
               "
             >
               Illustration · Gouda AI
@@ -161,7 +161,6 @@ export default async function Post({ params }: PostPageParams) {
 
           </figure>
         )}
-
 
         {/* =======================================================
             ARTICLE
@@ -172,18 +171,19 @@ export default async function Post({ params }: PostPageParams) {
             max-w-3xl
             rounded-2xl
             border
-            border-[#64401e]/10
-            bg-[#fffdf9]
+            border-[var(--border)]
+            bg-surface
             px-6
             py-8
-            shadow-[0_10px_40px_rgba(70,45,20,0.05)]
+            shadow-[0_10px_40px_var(--shadow)]
+            transition-colors
+            duration-300
             md:px-12
             md:py-14
           "
         >
           <MarkdownRenderer content={postData.content} />
         </article>
-
 
         {/* =======================================================
             FOOTER NAVIGATION
@@ -194,7 +194,7 @@ export default async function Post({ params }: PostPageParams) {
             mt-10
             max-w-3xl
             border-t
-            border-[#64401e]/10
+            border-[var(--border)]
             pt-8
           "
         >
@@ -203,9 +203,9 @@ export default async function Post({ params }: PostPageParams) {
             className="
               text-sm
               font-semibold
-              text-[#64401e]
-              transition-opacity
-              hover:opacity-60
+              text-chocolate
+              transition-colors
+              hover:text-sage
             "
           >
             ← Back to all posts
@@ -214,5 +214,5 @@ export default async function Post({ params }: PostPageParams) {
 
       </main>
     </div>
-  );
+  )
 }

@@ -1,44 +1,125 @@
 'use client'
 
-import { useState } from 'react'
-
-
+import { useEffect, useRef, useState } from 'react'
 
 interface Message {
   id: string
   content: string
   isUser: boolean
   timestamp: Date
-  rating?: number
 }
 
 const MODELS = [
-  {
-    id: 'Gruyere-1.2',
-    name: 'Gruyere-1.2',
-    apiName: 'Gruyere-1.2',
-  },
-  {
-    id: 'Gruyere-1.1',
-    name: 'Gruyere-1.1',
-    apiName: 'Gruyere-1.1',
-  }
+  { id: 'Gruyere-1.2', name: 'Gruyère-1.2', apiName: 'Gruyere-1.2' },
+  { id: 'Gruyere-1.1', name: 'Gruyère-1.1', apiName: 'Gruyere-1.1' },
 ]
+
+function ModelSelector({
+  selectedModel,
+  setSelectedModel,
+  disabled,
+}: {
+  selectedModel: string
+  setSelectedModel: (model: string) => void
+  disabled: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const selected = MODELS.find(model => model.id === selectedModel) ?? MODELS[0]
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  return (
+    <div className="model-picker" ref={ref}>
+      <button
+        type="button"
+        className={`model-picker-trigger ${open ? 'open' : ''}`}
+        onClick={() => setOpen(prev => !prev)}
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className="model-picker-trigger-content">
+          <span className="model-status-dot" />
+          <span>{selected.name}</span>
+        </span>
+
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path d="m6 8 4 4 4-4" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="model-menu" role="listbox">
+          <div className="model-menu-heading">Models</div>
+
+          {MODELS.map(model => {
+            const active = model.id === selectedModel
+
+            return (
+              <button
+                key={model.id}
+                type="button"
+                role="option"
+                aria-selected={active}
+                className={`model-option ${active ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedModel(model.id)
+                  setOpen(false)
+                }}
+              >
+                <span className="model-option-main">
+                  <span className="model-option-name">{model.name}</span>
+                  <span className="model-option-description">
+                    {model.id === 'Gruyere-1.2'
+                      ? 'Latest chat model - Up to 3x better'
+                      : 'Previous generation'}
+                  </span>
+                </span>
+
+                {active && (
+                  <svg className="model-check" viewBox="0 0 20 20">
+                    <path d="m5 10 3 3 7-7" />
+                  </svg>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I\'m Gouda. Ask Me Anything! \n The best way to talk to me is to get me to finish a sentence, \n rather than question me directly!',
+      content:
+        "Hello! I'm Gouda. Ask me anything!",
       isUser: false,
       timestamp: new Date(),
-      rating: 0
-    }
+    },
   ])
 
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedModel, setSelectedModel] = useState(MODELS[0].id)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -47,38 +128,33 @@ export default function ChatInterface() {
 
     const messageText = inputValue.trim()
 
-    // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
       content: messageText,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     }
 
     setMessages(prev => [...prev, userMessage])
     setInputValue('')
     setIsLoading(true)
 
-    // Create the assistant message immediately.
-    // Its content will be filled in as tokens arrive.
     const assistantMessageId = (Date.now() + 1).toString()
 
-    const assistantMessage: Message = {
-      id: assistantMessageId,
-      content: '',
-      isUser: false,
-      timestamp: new Date(),
-      rating: 0
-    }
-
-    setMessages(prev => [...prev, assistantMessage])
+    setMessages(prev => [
+      ...prev,
+      {
+        id: assistantMessageId,
+        content: '',
+        isUser: false,
+        timestamp: new Date(),
+      },
+    ])
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: messageText,
           model_name: MODELS.find(model => model.id === selectedModel)?.apiName,
@@ -93,43 +169,27 @@ export default function ChatInterface() {
         )
       }
 
-      if (!response.body) {
-        throw new Error('No response body received')
-      }
+      if (!response.body) throw new Error('No response body received')
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
-
       let accumulatedText = ''
 
       while (true) {
         const { value, done } = await reader.read()
+        if (done) break
 
-        if (done) {
-          break
-        }
+        accumulatedText += decoder.decode(value, { stream: true })
 
-        // Decode the incoming bytes into text
-        const chunk = decoder.decode(value, {
-          stream: true
-        })
-
-        accumulatedText += chunk
-
-        // Update the existing assistant message
         setMessages(prev =>
           prev.map(msg =>
             msg.id === assistantMessageId
-              ? {
-                  ...msg,
-                  content: accumulatedText
-                }
+              ? { ...msg, content: accumulatedText }
               : msg
           )
         )
       }
 
-      // Flush anything remaining in the decoder
       const finalChunk = decoder.decode()
 
       if (finalChunk) {
@@ -138,15 +198,11 @@ export default function ChatInterface() {
         setMessages(prev =>
           prev.map(msg =>
             msg.id === assistantMessageId
-              ? {
-                  ...msg,
-                  content: accumulatedText
-                }
+              ? { ...msg, content: accumulatedText }
               : msg
           )
         )
       }
-
     } catch (error) {
       console.error('Chat error:', error)
 
@@ -155,7 +211,7 @@ export default function ChatInterface() {
           msg.id === assistantMessageId
             ? {
                 ...msg,
-                content: 'Sorry, something went wrong. Please try again.'
+                content: 'Sorry, something went wrong. Please try again.',
               }
             : msg
         )
@@ -165,155 +221,87 @@ export default function ChatInterface() {
     }
   }
 
-  const handleRating = (messageId: string, rating: number) => {
-    setMessages(prev =>
-      prev.map(msg =>
-        msg.id === messageId
-          ? { ...msg, rating }
-          : msg
-      )
-    )
-  }
-
-  /*
-  const StarRating = ({
-    messageId,
-    currentRating
-  }: {
-    messageId: string,
-    currentRating: number
-  }) => {
-    return (
-      <div className="flex mt-2">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            onClick={() => handleRating(messageId, star)}
-            className="text-lg hover:scale-110 transition-transform"
-          >
-            <span
-              className={
-                star <= currentRating
-                  ? 'text-yellow-500'
-                  : 'text-gray-300'
-              }
-            >
-              ⭐
-            </span>
-          </button>
-        ))}
-      </div>
-    )
-  }
-  */
-
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <p className='text-center mb-3 text-5xl text-[#64401e] font-bold'>
-        Welcome To Gouda!
-      </p>
+    <section className="gouda-hero">
+      <div className="hero-decoration hero-decoration-left" aria-hidden="true">
+        <span className="shape shape-circle" />
+        <span className="shape shape-square" />
+        <span className="shape shape-triangle" />
+      </div>
 
-      <p className='text-center mb-8 text-2xl text-[#64401e]'>
-        (Incredibly) Lightweight LLMs
-      </p>
+      <div className="hero-decoration hero-decoration-right" aria-hidden="true">
+        <span className="shape shape-circle" />
+        <span className="shape shape-square" />
+        <span className="shape shape-triangle" />
+      </div>
 
-      {/* Chat Container */}
-      <div className="bg-[#d7c3aa] rounded-xl shadow-lg min-h-[500px] flex flex-col">
+      <header className="hero-heading">
+        <h1>Welcome to Gouda!</h1>
+        <p>(Incredibly) Lightweight LLMs</p>
+      </header>
 
-        {/* Messages Area */}
-        <div className="flex-1 p-4 space-y-4 min-h-[400px] overflow-y-auto">
-          {messages.map((message) => (
-            <div key={message.id}>
+      <div className="chat-shell">
+        <div className="messages-area chat-scroll">
+          {messages.map(message => (
+            <div
+              key={message.id}
+              className={`message-row ${
+                message.isUser ? 'message-row-user' : ''
+              }`}
+            >
               <div
-                className={`flex ${
-                  message.isUser
-                    ? 'justify-end'
-                    : 'justify-start'
+                className={`message ${
+                  message.isUser ? 'message-user' : 'message-gouda'
                 }`}
               >
-                <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg whitespace-pre-wrap ${
-                    message.isUser
-                      ? 'bg-[#e6d5c0] text-[#5c4033]'
-                      : 'bg-[#dac9b6] text-[#5c4033]'
-                  }`}
-                >
-                  {message.content}
-                </div>
+                {message.content}
               </div>
-
-              {!message.isUser && (
-                <div className="flex justify-start">
-                  {/* 
-                  <StarRating
-                    messageId={message.id}
-                    currentRating={message.rating || 0}
-                  />
-                  */}
-                </div>
-              )}
             </div>
           ))}
 
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-[#dac9b6] text-[#5c4033] px-4 py-2 rounded-lg">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-[#5c4033] rounded-full animate-bounce"></div>
-
-                  <div
-                    className="w-2 h-2 bg-[#5c4033] rounded-full animate-bounce"
-                    style={{ animationDelay: '0.1s' }}
-                  ></div>
-
-                  <div
-                    className="w-2 h-2 bg-[#5c4033] rounded-full animate-bounce"
-                    style={{ animationDelay: '0.2s' }}
-                  ></div>
-                </div>
+            <div className="message-row">
+              <div className="message message-gouda loading-message">
+                <span />
+                <span />
+                <span />
               </div>
             </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 border-t border-gray-200 bg-[#f5f0e8] rounded-b-xl">
-          <form
-            onSubmit={handleSubmit}
-            className="flex space-x-2"
-          >
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask Gouda Something..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        <form onSubmit={handleSubmit} className="composer">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            placeholder="Ask Gouda something..."
+            disabled={isLoading}
+            aria-label="Message Gouda"
+          />
+
+          <div className="composer-actions">
+            <ModelSelector
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
               disabled={isLoading}
             />
 
-            <select
-              value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="px-3 py-2 bg-[#8b5a2b] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-              disabled={isLoading}
-            >
-              {MODELS.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name}
-                </option>
-              ))}
-            </select>
-
             <button
               type="submit"
+              className="send-button"
               disabled={isLoading || !inputValue.trim()}
-              className="px-6 py-2 bg-[#8b5a2b] text-white rounded-lg hover:bg-[#704420] focus:outline-none focus:ring-2 focus:ring-amber-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Send message"
             >
-              Send
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
-    </div>
+    </section>
   )
 }

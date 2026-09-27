@@ -9,6 +9,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Gouda semantic colours
+        paper: 'var(--paper)',
+        surface: 'var(--paper-raised)',
+        chocolate: 'var(--chocolate)',
+        'chocolate-soft': 'var(--chocolate-soft)',
+        beige: 'var(--beige)',
+        'beige-light': 'var(--beige-light)',
+        sage: 'var(--sage)',
+        footer: 'var(--footer)',
+        'footer-text': 'var(--footer-text)',
+
+        // Existing palettes
         amber: {
           50: '#fffbeb',
           100: '#fef3c7',
@@ -32,8 +44,9 @@ module.exports = {
           700: '#c2410c',
           800: '#9a3412',
           900: '#7c2d12',
-        }
+        },
       },
+
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
