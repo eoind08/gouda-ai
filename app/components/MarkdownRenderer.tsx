@@ -1,29 +1,40 @@
-import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
-/**
- * Defines the props interface for the MarkdownRenderer component.
- */
 interface MarkdownRendererProps {
-  contentHtml: string;
+  content: string;
 }
 
-/**
- * Renders HTML content generated from Markdown.
- * Uses `dangerouslySetInnerHTML` which is safe here because the HTML
- * is generated from trusted Markdown files using `remark-html`.
- * @param {MarkdownRendererProps} props - Component props.
- * @param {string} props.contentHtml - The HTML string to render.
- */
-export default function MarkdownRenderer({ contentHtml }: MarkdownRendererProps) {
+export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    // Apply Tailwind CSS for basic prose styling to make Markdown look good
     <div
-      className="prose dark:prose-invert max-w-none prose-lg
-                 prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
-                 prose-a:text-blue-600 hover:prose-a:text-blue-800
-                 prose-img:rounded-lg prose-img:shadow-md
-                 prose-p:leading-relaxed"
-      dangerouslySetInnerHTML={{ __html: contentHtml }}
-    />
+      className="
+        prose prose-lg max-w-none
+        prose-headings:text-[#64401e]
+        prose-p:text-[#3f3429]
+        prose-p:leading-relaxed
+        prose-a:text-[#64401e]
+        hover:prose-a:text-[#3f3429]
+        prose-strong:text-[#64401e]
+        prose-blockquote:border-[#d7c3aa]
+        prose-blockquote:text-[#6b5b4a]
+        prose-img:rounded-lg
+        prose-img:shadow-md
+        prose-pre:bg-[#f5f0e8]
+        prose-pre:text-[#3f3429]
+        prose-table:my-8
+        prose-th:bg-[#f5f0e8]
+        prose-th:px-4
+        prose-th:py-3
+        prose-td:px-4
+        prose-td:py-3
+        prose-th:border-[#d7c3aa]/40
+        prose-td:border-[#d7c3aa]/40
+      "
+    >
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+        {content}
+      </ReactMarkdown>
+    </div>
   );
 }

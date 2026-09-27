@@ -10,9 +10,9 @@ image: "/gruyere-1.2.png"
 
 tags: ["Gouda", "Gruyère", "Release"]
 
----
+description: "Gruyère-1.2 builds on the Gruyère-1.1 foundation with a full fine-tuning pass on UltraChat-200k, moving the model from continued pretraining toward conversational use."
 
-## description: "Gruyère-1.2 builds on the Gruyère-1.1 foundation with a full fine-tuning pass on UltraChat-200k, moving the model from continued pretraining toward conversational use."
+---
 
 # Gruyère-1.2 — From Language Model to Chat Model
 

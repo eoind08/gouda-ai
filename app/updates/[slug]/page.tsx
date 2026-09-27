@@ -181,7 +181,7 @@ export default async function Post({ params }: PostPageParams) {
             md:py-14
           "
         >
-          <MarkdownRenderer contentHtml={postData.contentHtml} />
+          <MarkdownRenderer content={postData.content} />
         </article>
 
 
