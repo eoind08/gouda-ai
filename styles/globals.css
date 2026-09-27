@@ -1115,9 +1115,34 @@ html.dark .chat-scroll::-webkit-scrollbar-thumb {
    SMALL MOBILE
    ============================================================ */
 
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
 @media (max-width: 430px) {
+  .navbar-inner {
+    width: calc(100% - 20px);
+  }
+
+  .brand {
+    gap: 7px;
+    font-size: 1.05rem;
+  }
+
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+
   .nav-links > a {
-    display: none;
+    padding: 7px 6px;
+    font-size: 0.8rem;
+  }
+
+  .theme-button {
+    width: 34px;
+    height: 34px;
+    padding: 7px;
   }
 
   .gouda-hero {
@@ -1136,8 +1161,6 @@ html.dark .chat-scroll::-webkit-scrollbar-thumb {
     min-height: calc(100dvh - 220px);
   }
 }
-
-
 /* ============================================================
    REDUCED MOTION
    ============================================================ */
