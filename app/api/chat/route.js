@@ -8,7 +8,7 @@ export async function POST(request) {
 
     const {
       message,
-      model_name = 'Gruyere-1.0-r1',
+      model_name = 'Gruyere-1.2',
       max_tokens = 256,
     } = body
 

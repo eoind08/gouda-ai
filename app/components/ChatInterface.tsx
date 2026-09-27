@@ -14,6 +14,11 @@ interface Message {
 
 const MODELS = [
   {
+    id: 'Gruyere-1.2',
+    name: 'Gruyere-1.2',
+    apiName: 'Gruyere-1.2',
+  },
+  {
     id: 'Gruyere-1.1',
     name: 'Gruyere-1.1',
     apiName: 'Gruyere-1.1',
@@ -77,7 +82,7 @@ export default function ChatInterface() {
         body: JSON.stringify({
           message: messageText,
           model_name: MODELS.find(model => model.id === selectedModel)?.apiName,
-          max_tokens: 100,
+          max_tokens: 256,
         }),
       })
 
@@ -227,7 +232,7 @@ export default function ChatInterface() {
                 }`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg whitespace-pre-wrap ${
                     message.isUser
                       ? 'bg-[#e6d5c0] text-[#5c4033]'
                       : 'bg-[#dac9b6] text-[#5c4033]'
