@@ -7,12 +7,26 @@ interface Message {
   content: string
   isUser: boolean
   timestamp: Date
+  modelId?: string
+  isStreaming?: boolean
 }
 
 const MODELS = [
-  { id: 'Gruyere-1.2', name: 'Gruyère-1.2', apiName: 'Gruyere-1.2' },
-  { id: 'Gruyere-1.1', name: 'Gruyère-1.1', apiName: 'Gruyere-1.1' },
+  //{ id: 'Gruyere-1.2', name: 'Gruyère-1.2', apiName: 'Gruyere-1.2' },
+  //{ id: 'Gruyere-1.1', name: 'Gruyère-1.1', apiName: 'Gruyere-1.1' },
+  { id: 'Ricotta-2.0', name: 'Ricotta-2.0', apiName: 'Ricotta-2.0-Instruct' },
+  { id: 'Gruyere-2.0', name: 'Gruyere-2.0 ★', apiName: 'Gruyere-2.0-Instruct' },
+  { id: 'Gouda-2.0', name: 'Gouda-2.0', apiName: 'Gouda-2.0-Instruct' },
+  { id: 'Cheddar-2.0', name: 'Cheddar-2.0', apiName: 'Cheddar-2.0-Instruct' },
 ]
+
+const descriptions = {
+  //'Gruyere-1.2': 'Latest chat model - Up to 3x better',
+  'Ricotta-2.0': 'Fastest for quick questions',
+  'Gruyere-2.0': 'Best pound for pound',
+  'Gouda-2.0': 'Most capable model',
+  'Cheddar-2.0': 'Bit too big for its boots',
+};
 
 function ModelSelector({
   selectedModel,
@@ -83,7 +97,15 @@ function ModelSelector({
                   <span className="model-option-description">
                     {model.id === 'Gruyere-1.2'
                       ? 'Latest chat model - Up to 3x better'
-                      : 'Previous generation'}
+                      : ''}
+                    {model.id === 'Ricotta-2.0'
+                      ? 'Fastest for quick questions' : ''}
+                    {model.id === 'Gruyere-2.0'
+                      ? 'Best pound for pound' : ''}
+                    {model.id === 'Gouda-2.0'
+                      ? 'Most capable model' : ''}
+                    {model.id === 'Cheddar-2.0'
+                      ? 'Bit too big for its boots' : ''}
                   </span>
                 </span>
 
@@ -114,7 +136,7 @@ export default function ChatInterface() {
 
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedModel, setSelectedModel] = useState(MODELS[0].id)
+  const [selectedModel, setSelectedModel] = useState(MODELS[1].id)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -127,6 +149,9 @@ export default function ChatInterface() {
     if (!inputValue.trim() || isLoading) return
 
     const messageText = inputValue.trim()
+    const requestModel = MODELS.find(
+      model => model.id === selectedModel
+    ) ?? MODELS[0]
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -139,7 +164,7 @@ export default function ChatInterface() {
     setInputValue('')
     setIsLoading(true)
 
-    const assistantMessageId = (Date.now() + 1).toString()
+    const assistantMessageId = crypto.randomUUID()
 
     setMessages(prev => [
       ...prev,
@@ -148,6 +173,8 @@ export default function ChatInterface() {
         content: '',
         isUser: false,
         timestamp: new Date(),
+        modelId: requestModel.id,
+        isStreaming: true,
       },
     ])
 
@@ -157,7 +184,7 @@ export default function ChatInterface() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: messageText,
-          model_name: MODELS.find(model => model.id === selectedModel)?.apiName,
+          model_name: requestModel.apiName,
           max_tokens: 256,
         }),
       })
@@ -217,6 +244,13 @@ export default function ChatInterface() {
         )
       )
     } finally {
+      setMessages(prev =>
+      prev.map(msg =>
+        msg.id === assistantMessageId
+          ? { ...msg, isStreaming: false }
+          : msg
+        )
+      )
       setIsLoading(false)
     }
   }
@@ -242,32 +276,45 @@ export default function ChatInterface() {
 
       <div className="chat-shell">
         <div className="messages-area chat-scroll">
-          {messages.map(message => (
-            <div
-              key={message.id}
-              className={`message-row ${
-                message.isUser ? 'message-row-user' : ''
-              }`}
-            >
+          {messages.map(message => {
+            const model = MODELS.find(m => m.id === message.modelId)
+
+            return (
               <div
-                className={`message ${
-                  message.isUser ? 'message-user' : 'message-gouda'
+                key={message.id}
+                className={`message-row ${
+                  message.isUser ? 'message-row-user' : ''
                 }`}
               >
-                {message.content}
-              </div>
-            </div>
-          ))}
+                <div
+                  className={`message ${
+                    message.isUser ? 'message-user' : 'message-gouda'
+                  }`}
+                >
+                  {!message.isUser && (
+                    <div className="message-model-label">
+                      {model?.name ?? 'Gouda AI'}
+                    </div>
+                  )}
 
-          {isLoading && (
-            <div className="message-row">
-              <div className="message message-gouda loading-message">
-                <span />
-                <span />
-                <span />
+                  <span className="message-content">
+                    {message.content}
+                    {message.isStreaming && (
+                      <span
+                        className="streaming-dots"
+                        role="status"
+                        aria-label="Generating response"
+                      >
+                        <span />
+                        <span />
+                        <span />
+                      </span>
+                    )}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })}
 
           <div ref={messagesEndRef} />
         </div>
