@@ -5,11 +5,11 @@ export default function Footer() {
     <footer className="bg-beige px-4 py-6 mt-4 transition-colors duration-300">
       <div className="max-w-md mx-auto text-center px-4">
         <p className="text-chocolate text-sm">
-          Latest Model: Gruyère-1.2
+          Latest Model: Gouda-2.0 Family
         </p>
 
         <p className="text-chocolate text-sm">
-          Gouda AI 0.2.1
+          Gouda AI 0.2.2
         </p>
 
         <Link
