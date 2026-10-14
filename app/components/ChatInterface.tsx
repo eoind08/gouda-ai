@@ -138,10 +138,17 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [selectedModel, setSelectedModel] = useState(MODELS[1].id)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const handleStop = () => {
+  abortControllerRef.current?.abort()
+  abortControllerRef.current = null
+  setIsLoading(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -178,10 +185,14 @@ export default function ChatInterface() {
       },
     ])
 
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           message: messageText,
           model_name: requestModel.apiName,
@@ -231,6 +242,9 @@ export default function ChatInterface() {
         )
       }
     } catch (error) {
+      if (controller.signal.aborted) {
+        return
+      }
       console.error('Chat error:', error)
 
       setMessages(prev =>
@@ -244,6 +258,9 @@ export default function ChatInterface() {
         )
       )
     } finally {
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null
+      }
       setMessages(prev =>
       prev.map(msg =>
         msg.id === assistantMessageId
@@ -325,7 +342,6 @@ export default function ChatInterface() {
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             placeholder="Ask Gouda something..."
-            disabled={isLoading}
             aria-label="Message Gouda"
           />
 
@@ -337,14 +353,22 @@ export default function ChatInterface() {
             />
 
             <button
-              type="submit"
-              className="send-button"
-              disabled={isLoading || !inputValue.trim()}
-              aria-label="Send message"
+              type={isLoading ? 'button' : 'submit'}
+              className={`send-button ${isLoading ? 'stop-button' : ''}`}
+              onClick={isLoading ? handleStop : undefined}
+              disabled={!isLoading && !inputValue.trim()}
+              aria-label={isLoading ? 'Stop generating' : 'Send message'}
+              title={isLoading ? 'Stop generating' : 'Send message'}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              {isLoading ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="7" y="7" width="10" height="10" rx="2" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              )}
             </button>
           </div>
         </form>

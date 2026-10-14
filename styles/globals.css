@@ -1241,3 +1241,28 @@ html.dark .chat-scroll::-webkit-scrollbar-thumb {
     opacity: 0.6;
   }
 }
+
+.stop-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.stop-button svg rect {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Allow chat to expand with its content */
+.chat-shell {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.messages-area,
+.chat-scroll {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  overscroll-behavior: auto;
+}
